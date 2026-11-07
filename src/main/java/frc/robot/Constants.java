@@ -9,6 +9,8 @@ public final class Constants {
   private Constants() {}
 
   public static final class DriveConstants {
+    public static final int kDriverControllerPort = 0;
+    public static final double kDriverDeadband = 0.08;
     public static final double kMaxSpeedMetersPerSecond = 4.8;
     public static final double kMaxAngularSpeed = 2 * Math.PI;
 
