@@ -3,7 +3,9 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.auto.AutoRoutines;
 import frc.robot.auto.AutoSelector;
@@ -20,7 +22,14 @@ public class RobotContainer {
 
   public RobotContainer() {
     autoSelector.publishToDashboard();
+    configureButtonBindings();
     configureDefaultCommands();
+  }
+
+  private void configureButtonBindings() {
+    // Start resets the gyro heading to zero.
+    new Trigger(driverController::getStartButton)
+        .onTrue(new InstantCommand(m_robotDrive::resetGyro, m_robotDrive));
   }
 
   private void configureDefaultCommands() {
@@ -42,8 +51,7 @@ public class RobotContainer {
 
                   m_robotDrive.drive(xSpeed, ySpeed, rotationSpeed, true);
                 },
-                m_robotDrive)
-            .finallyDo(interrupted -> m_robotDrive.drive(0.0, 0.0, 0.0, true)));
+                m_robotDrive));
   }
 
   public Command getAutonomousCommand() {
