@@ -67,7 +67,7 @@ public class APOdometry {
       modulePoses.add(new Pose(0, 0, initialAngle));
     }
 
-    lastCenter = new Pose(0, 0, gyro.getRotation2d().getDegrees());
+    lastCenter = new Pose(0, 0, getFieldHeadingDegrees());
     lastTime = Timer.getFPGATimestamp();
   }
 
@@ -97,7 +97,7 @@ public class APOdometry {
    * 5. Calculate velocity from position change
    */
   public void update() {
-    double robotHeading = gyro.getRotation2d().getDegrees();
+    double robotHeading = getFieldHeadingDegrees();
     double robotHeadingRad = Math.toRadians(robotHeading);
     
     // Update each wheel's field position
@@ -153,7 +153,7 @@ public class APOdometry {
    * @return calculated center pose
    */
   private Pose getCenterFromWheel(Pose wheelPose, Vector wheelOffset) {
-    double yaw = gyro.getRotation2d().getDegrees();
+    double yaw = getFieldHeadingDegrees();
 
     // Rotate offset by robot heading to get field-relative offset
     double offsetAngleRad = Math.toRadians(yaw + wheelOffset.getAngle().getDegrees());
@@ -186,7 +186,7 @@ public class APOdometry {
 
     double avgX = sumX / modulePoses.size();
     double avgY = sumY / modulePoses.size();
-    double avgAngle = gyro.getRotation2d().getDegrees();
+    double avgAngle = getFieldHeadingDegrees();
 
     return new Pose(avgX, avgY, avgAngle);
   }
@@ -271,13 +271,15 @@ public class APOdometry {
     
     lastCenter = new Pose(newPose);
     calculateCenter();
+    lastTime = Timer.getFPGATimestamp();
+    lastVelocity = new Vector(0, 0);
   }
 
   /**
    * Resets odometry to origin with current gyro heading.
    */
   public void reset() {
-    double yaw = gyro.getRotation2d().getDegrees();
+    double yaw = getFieldHeadingDegrees();
     
     for (int i = 0; i < swerveMods.size(); i++) {
       Vector offset = wheelOffsets.get(i);
@@ -294,6 +296,14 @@ public class APOdometry {
     }
     
     lastCenter = new Pose(0, 0, yaw);
+    lastTime = Timer.getFPGATimestamp();
+    lastVelocity = new Vector(0, 0);
+  }
+
+  /** Returns gyro yaw in the blue-field coordinate frame used by Limelight. */
+  private double getFieldHeadingDegrees() {
+    double rawYaw = gyro.getRotation2d().getDegrees();
+    return rawYaw * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
   }
 
   /**

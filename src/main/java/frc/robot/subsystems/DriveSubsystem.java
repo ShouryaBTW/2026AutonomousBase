@@ -23,7 +23,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Variables;
 import frc.robot.utils.APOdometry;
 import frc.robot.utils.Calculations;
-import frc.robot.utils.LimelightToAPOTranslator;
 import frc.robot.utils.Pose;
 import frc.robot.utils.Vector;
 
@@ -74,13 +73,10 @@ public class DriveSubsystem extends SubsystemBase {
 public void periodic() {
   m_odometry.update();
   Pose pose = getPose();
-  // The autonomous routines use a field frame with negative X/Y coordinates.
-  // Rotate that frame 180 degrees for Field2d, whose field display uses the
-  // standard positive-X/positive-Y field coordinates. This changes display only.
   m_field.setRobotPose(
-      -pose.getX(),
-      -pose.getY(),
-      Rotation2d.fromDegrees(pose.getAngle() + 180.0));
+      pose.getX(),
+      pose.getY(),
+      Rotation2d.fromDegrees(pose.getAngle()));
 }
 
   /** Advances a simple ideal swerve model for desktop simulation. */
@@ -248,11 +244,9 @@ public double getVisionYawRate() {
     }
   }
 
-  /**
- * Sets odometry pose from Limelight, but rejects large jumps.
- */
 /**
  * Applies Limelight position as a translation correction to odometry.
+ * Limelight and odometry poses are both expressed in the blue-field frame.
  * Keeps the current drivetrain heading and wheel state intact.
  *
  * This does NOT hard-reset odometry like setPose().
@@ -262,12 +256,23 @@ public void correctPositionFromLimelight() {
     return;
   }
 
-  Pose visionPose = LimelightToAPOTranslator.getTranslatedPose();
+  // Limelight and odometry both use WPILib's blue-field coordinate frame.
+  Pose visionPose = new Pose(
+      Variables.limelight.ll_x,
+      Variables.limelight.ll_y,
+      Variables.limelight.ll_rot);
   Pose currentPose = getPose();
 
   double dx = visionPose.getX() - currentPose.getX();
   double dy = visionPose.getY() - currentPose.getY();
 
-  m_odometry.translatePose(dx, dy);
+  if (RobotBase.isSimulation()) {
+    m_simPose = new Pose2d(
+        m_simPose.getX() + dx,
+        m_simPose.getY() + dy,
+        m_simPose.getRotation());
+  } else {
+    m_odometry.translatePose(dx, dy);
+  }
 }
 }

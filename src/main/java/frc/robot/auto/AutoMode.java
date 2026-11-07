@@ -1,10 +1,11 @@
 package frc.robot.auto;
 
 public enum AutoMode {
-  RED_RIGHT("Red Right", 90.0, -12.2, -7.3),
-  RED_LEFT("Red Left", 270.0, -12.2, -0.6),
-  BLUE_RIGHT("Blue Right", 270.0, -4.152, -0.7),
-  BLUE_LEFT("Blue Left", 90.0, -4.25, -7.4);
+  // Starting poses are in WPILib/Limelight blue-field coordinates (meters/degrees).
+  RED_RIGHT("Red Right", 270.0, 12.2, 7.3),
+  RED_LEFT("Red Left", 90.0, 12.2, 0.6),
+  BLUE_RIGHT("Blue Right", 90.0, 4.152, 0.7),
+  BLUE_LEFT("Blue Left", 270.0, 4.25, 7.4);
 
   private final String label;
   private final double startingHeadingDeg;
