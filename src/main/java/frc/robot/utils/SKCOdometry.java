@@ -20,9 +20,9 @@ import frc.robot.subsystems.MAXSwerveModule;
  * Tracks each wheel independently, calculates robot center by averaging.
  * All positions/velocities are in field coordinates (meters).
  */
-public class APOdometry {
+public class SKCOdometry {
 
-  private static APOdometry instance;
+  private static SKCOdometry instance;
 
   // Hardware
   private final Pigeon2 gyro;
@@ -43,7 +43,7 @@ public class APOdometry {
    * @param swerveMods list of modules in FL, FR, BL, BR order
    * @param gyro robot gyroscope
    */
-  private APOdometry(List<MAXSwerveModule> swerveMods, Pigeon2 gyro) {
+  private SKCOdometry(List<MAXSwerveModule> swerveMods, Pigeon2 gyro) {
     this.swerveMods = swerveMods;
     this.gyro = gyro;
     this.lastWheelDistances = new double[swerveMods.size()];
@@ -76,11 +76,11 @@ public class APOdometry {
    * 
    * @param swerveMods list of swerve modules
    * @param gyro pigeon2 gyroscope
-   * @return APOdometry instance
+   * @return SKCOdometry instance
    */
-  public static APOdometry getInstance(List<MAXSwerveModule> swerveMods, Pigeon2 gyro) {
+  public static SKCOdometry getInstance(List<MAXSwerveModule> swerveMods, Pigeon2 gyro) {
     if (instance == null) {
-      instance = new APOdometry(swerveMods, gyro);
+      instance = new SKCOdometry(swerveMods, gyro);
     }
     return instance;
   }

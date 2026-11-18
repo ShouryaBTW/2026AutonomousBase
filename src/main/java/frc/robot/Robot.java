@@ -6,9 +6,11 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.utils.Calculations;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.Pose;
 
@@ -57,11 +59,35 @@ public void robotPeriodic() {
   var llMeasurement =
       LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME);
 
+  Pose odometryBeforeVision = m_robotContainer.m_robotDrive.getPose();
+  SmartDashboard.putNumber("Localization/Gyro Heading Deg", currentHeadingDeg);
+  SmartDashboard.putNumber("Localization/Odometry X Meters", odometryBeforeVision.getX());
+  SmartDashboard.putNumber("Localization/Odometry Y Meters", odometryBeforeVision.getY());
+  SmartDashboard.putNumber(
+      "Localization/Odometry Heading Deg", odometryBeforeVision.getAngle());
+  SmartDashboard.putBoolean(
+      "Localization/MT2 Has Tags", llMeasurement != null && llMeasurement.tagCount > 0);
+
   if (llMeasurement != null) {
     Variables.limelight.hasTarget = llMeasurement.tagCount > 0;
     Variables.limelight.ll_x = llMeasurement.pose.getX();
     Variables.limelight.ll_y = llMeasurement.pose.getY();
     Variables.limelight.ll_rot = llMeasurement.pose.getRotation().getDegrees();
+
+    SmartDashboard.putNumber("Localization/MT2 X Meters", Variables.limelight.ll_x);
+    SmartDashboard.putNumber("Localization/MT2 Y Meters", Variables.limelight.ll_y);
+    SmartDashboard.putNumber("Localization/MT2 Heading Deg", Variables.limelight.ll_rot);
+    SmartDashboard.putNumber("Localization/MT2 Tag Count", llMeasurement.tagCount);
+    SmartDashboard.putNumber(
+        "Localization/MT2 X Minus Odom Meters",
+        Variables.limelight.ll_x - odometryBeforeVision.getX());
+    SmartDashboard.putNumber(
+        "Localization/MT2 Y Minus Odom Meters",
+        Variables.limelight.ll_y - odometryBeforeVision.getY());
+    SmartDashboard.putNumber(
+        "Localization/MT2 Heading Minus Odom Deg",
+        Calculations.shortestAngularDistance(
+            Variables.limelight.ll_rot, odometryBeforeVision.getAngle()));
   } else {
     Variables.limelight.hasTarget = false;
   }
@@ -75,6 +101,7 @@ public void robotPeriodic() {
     if (llMeasurement.rawFiducials[0].ambiguity > 0.7) reject = true;
     if (llMeasurement.rawFiducials[0].distToCamera > 3.0) reject = true;
   }
+  SmartDashboard.putBoolean("Localization/MT2 Accepted", !reject);
 
   // Do NOT hard set pose every frame unless you are initializing
   if (!reject) {
@@ -82,6 +109,10 @@ public void robotPeriodic() {
     // Heading remains gyro-driven.
     m_robotContainer.m_robotDrive.correctPositionFromLimelight();
   }
+
+  Pose odometryAfterVision = m_robotContainer.m_robotDrive.getPose();
+  SmartDashboard.putNumber("Localization/Odometry X After Vision Meters", odometryAfterVision.getX());
+  SmartDashboard.putNumber("Localization/Odometry Y After Vision Meters", odometryAfterVision.getY());
 }
 
   /** This function is called once each time the robot enters Disabled mode. */

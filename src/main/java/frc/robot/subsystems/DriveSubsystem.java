@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Variables;
-import frc.robot.utils.APOdometry;
+import frc.robot.utils.SKCOdometry;
 import frc.robot.utils.Calculations;
 import frc.robot.utils.Pose;
 import frc.robot.utils.Vector;
@@ -50,7 +50,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Pigeon2 m_gyro = new Pigeon2(DriveConstants.kGryoID);
 
-  private final APOdometry m_odometry;
+  private final SKCOdometry m_odometry;
   private final Field2d m_field = new Field2d();
   private Pose2d m_simPose = new Pose2d();
   private ChassisSpeeds m_simChassisSpeeds = new ChassisSpeeds();
@@ -62,7 +62,7 @@ public class DriveSubsystem extends SubsystemBase {
     List<MAXSwerveModule> modules = List.of(
         m_frontLeft, m_frontRight, m_rearLeft, m_rearRight);
 
-    m_odometry = APOdometry.getInstance(modules, m_gyro);
+    m_odometry = SKCOdometry.getInstance(modules, m_gyro);
 
     // Publish the estimated robot position so WPILib's Simulation GUI and Glass
     // can display it on a 2D field.
@@ -190,7 +190,7 @@ public void periodic() {
   }
 
   /**
-   * Base robot heading used everywhere outside APOdometry.
+   * Base robot heading used everywhere outside SKCOdometry.
    * Keep this convention aligned with your real robot tests.
    */
   public double getHeading() {
