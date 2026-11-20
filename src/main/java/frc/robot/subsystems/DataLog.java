@@ -1,10 +1,14 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Variables;
 import frc.robot.utils.Calculations;
+import frc.robot.utils.Pose;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -12,18 +16,31 @@ public class DataLog extends SubsystemBase {
   private final Supplier<String> selectedTurnTargetNameSupplier;
   private final DoubleSupplier selectedTurnTargetXSupplier;
   private final DoubleSupplier selectedTurnTargetYSupplier;
+  private final Supplier<Pose> robotPoseSupplier;
+  private final Field2d field = new Field2d();
 
   public DataLog(
       Supplier<String> selectedTurnTargetNameSupplier,
       DoubleSupplier selectedTurnTargetXSupplier,
-      DoubleSupplier selectedTurnTargetYSupplier) {
+      DoubleSupplier selectedTurnTargetYSupplier,
+      Supplier<Pose> robotPoseSupplier) {
     this.selectedTurnTargetNameSupplier = selectedTurnTargetNameSupplier;
     this.selectedTurnTargetXSupplier = selectedTurnTargetXSupplier;
     this.selectedTurnTargetYSupplier = selectedTurnTargetYSupplier;
+    this.robotPoseSupplier = robotPoseSupplier;
+
+    SmartDashboard.putData("Field", field);
   }
 
   @Override
 public void periodic() {
+    Pose robotPose = robotPoseSupplier.get();
+    field.setRobotPose(
+        new Pose2d(
+            robotPose.getX(),
+            robotPose.getY(),
+            Rotation2d.fromDegrees(robotPose.getAngle())));
+
     SmartDashboard.putBoolean("LL/HasTarget", Variables.limelight.hasTarget);
     SmartDashboard.putNumber("LL/TID", Variables.limelight.tid);
     SmartDashboard.putNumber("LL/TagCount", Variables.limelight.tagCount);

@@ -61,7 +61,8 @@ public class RobotContainer {
       new DataLog(
           autoSelector::getSelectedHubName,
           autoSelector::getSelectedHubX,
-          autoSelector::getSelectedHubY);
+          autoSelector::getSelectedHubY,
+          m_robotDrive::getPose);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   XboxController m_driverController =
