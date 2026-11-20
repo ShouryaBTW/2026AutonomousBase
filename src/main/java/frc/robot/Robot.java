@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.DriveSubsystem;
@@ -45,6 +44,7 @@ public class Robot extends TimedRobot {
   @Override
 public void robotPeriodic() {
   CommandScheduler.getInstance().run();
+  m_robotContainer.periodic();
   double currentHeadingDeg = m_robotContainer.m_robotDrive.getHeading();
   double currentYawRateDegPerSec = m_robotContainer.m_robotDrive.getTurnRate();
 
@@ -59,11 +59,15 @@ public void robotPeriodic() {
 
   if (llMeasurement != null) {
     Variables.limelight.hasTarget = llMeasurement.tagCount > 0;
+    Variables.limelight.tagCount = llMeasurement.tagCount;
+    Variables.limelight.latencyMs = llMeasurement.latency;
     Variables.limelight.ll_x = llMeasurement.pose.getX();
     Variables.limelight.ll_y = llMeasurement.pose.getY();
     Variables.limelight.ll_rot = llMeasurement.pose.getRotation().getDegrees();
   } else {
     Variables.limelight.hasTarget = false;
+    Variables.limelight.tagCount = 0;
+    Variables.limelight.latencyMs = 0;
   }
 
   // Conservative acceptance filter
@@ -141,20 +145,10 @@ public void robotPeriodic() {
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {
-    m_robotContainer.getDriveSubsystem().simulationPeriodic();
-  }
+  public void simulationPeriodic() {}
 
   private void initializeGyro() {
   DriveSubsystem drive = m_robotContainer.getDriveSubsystem();
-
-  // Desktop simulation has no physical gyro to wait for. Seed the simulated
-  // pose immediately so autonomous starts at the dashboard-selected position.
-  if (RobotBase.isSimulation()) {
-    drive.initializeGyro();
-    applyDashboardStartingPose();
-    return;
-  }
 
   new Thread(() -> {
       try {

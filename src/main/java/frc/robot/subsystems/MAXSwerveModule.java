@@ -70,7 +70,8 @@ public class MAXSwerveModule {
 
     double velocityWheelRPS = m_drivingKraken.getVelocity().getValueAsDouble();
 
-    double velocityMetersPerSec = velocityWheelRPS * ModuleConstants.kWheelCircumferenceMeters;
+    // Match the measured Limelight blue-field translation direction.
+    double velocityMetersPerSec = -velocityWheelRPS * ModuleConstants.kWheelCircumferenceMeters;
 
     return new SwerveModuleState(
       velocityMetersPerSec,
@@ -87,7 +88,8 @@ public class MAXSwerveModule {
     // relative to the chassis.
     double positionWheelRotations = m_drivingKraken.getPosition().getValueAsDouble();
 
-    double positionMeters = positionWheelRotations * ModuleConstants.kWheelCircumferenceMeters;
+    // The measured drive encoder sign is opposite the Limelight blue-field axes.
+    double positionMeters = -positionWheelRotations * ModuleConstants.kWheelCircumferenceMeters;
 
     return new SwerveModulePosition(
         positionMeters,
